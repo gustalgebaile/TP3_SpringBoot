@@ -18,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-// O replace = NONE força o teste a rodar contra o banco PostgreSQL no Docker, e não no H2 em memória.
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SistemaLegadoMappingTest {
 
@@ -32,23 +31,20 @@ class SistemaLegadoMappingTest {
     private RoleRepository roleRepository;
 
     @Test
-    @Rollback // Desfaz as alterações após o teste para manter o banco limpo
+    @Rollback
     void devePersistirUsuarioERecuperarComSuasRolesEOrganizacao() {
-        // 1. Busca ou Cria uma Organização para o teste
         Organizacao org = new Organizacao();
         org.setNome("Guilda de Teste " + System.currentTimeMillis());
         org.setAtivo(true);
         org.setCreatedAt(OffsetDateTime.now());
         org = organizacaoRepository.save(org);
 
-        // 2. Busca ou Cria uma Role
         Role roleAdmin = new Role();
         roleAdmin.setNome("ADMIN_" + System.currentTimeMillis());
         roleAdmin.setOrganizacao(org);
         roleAdmin.setCreatedAt(OffsetDateTime.now());
         roleAdmin = roleRepository.save(roleAdmin);
 
-        // 3. Cria e persiste um novo Usuário
         Usuario usuario = new Usuario();
         usuario.setNome("Arthas Menethil");
         usuario.setEmail("arthas" + System.currentTimeMillis() + "@lordaeron.com");
@@ -57,14 +53,12 @@ class SistemaLegadoMappingTest {
         usuario.setCreatedAt(OffsetDateTime.now());
         usuario.setUpdatedAt(OffsetDateTime.now());
         usuario.setOrganizacao(org);
-        usuario.getRoles().add(roleAdmin); // Vincula a Role
+        usuario.getRoles().add(roleAdmin);
 
         Usuario salvo = usuarioRepository.save(usuario);
 
-        // Limpa o contexto do JPA para forçar uma consulta real ao banco
         usuarioRepository.flush();
 
-        // 4. Valida as Asserções
         Optional<Usuario> encontrado = usuarioRepository.findById(salvo.getId());
         assertThat(encontrado).isPresent();
         assertThat(encontrado.get().getOrganizacao().getNome()).isEqualTo(org.getNome());

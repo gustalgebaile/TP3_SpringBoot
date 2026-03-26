@@ -2,11 +2,20 @@ package org.example.service;
 
 import org.example.dto.*;
 import org.example.enums.ClasseAventureiro;
+import org.example.exception.RecursoNaoEncontradoException;
 import org.example.model.Aventureiro;
 import org.example.model.Companheiro;
+import org.example.model.audit.Organizacao;
+import org.example.model.audit.Usuario;
 import org.example.repository.AventureiroRepository;
-import org.example.exception.RecursoNaoEncontradoException;
+import org.example.repository.OrganizacaoRepository;
+import org.example.repository.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,25 +23,42 @@ import java.util.stream.Collectors;
 @Service
 public class AventureiroService {
 
-    private final AventureiroRepository repository;
+    private final AventureiroRepository aventureiroRepository;
+    private final OrganizacaoRepository organizacaoRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public AventureiroService(AventureiroRepository repository) {
-        this.repository = repository;
+    public AventureiroService(AventureiroRepository aventureiroRepository,
+                              OrganizacaoRepository organizacaoRepository,
+                              UsuarioRepository usuarioRepository) {
+        this.aventureiroRepository = aventureiroRepository;
+        this.organizacaoRepository = organizacaoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
+    @Transactional
     public AventureiroDetalheDTO registrar(AventureiroRequestDTO dto) {
+        // 1. Validar as Chaves Estrangeiras do Schema Audit
+        Organizacao org = organizacaoRepository.findById(dto.organizacaoId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Organização não encontrada."));
+
+        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
+
+        // 2. Construir e Guardar a Entidade
         Aventureiro a = new Aventureiro();
         a.setNome(dto.nome());
         a.setClasse(dto.classe());
         a.setNivel(dto.nivel());
         a.setAtivo(true);
+        a.setOrganizacao(org);
+        a.setUsuarioResponsavel(usuario);
 
-        Aventureiro salvo = repository.save(a);
+        Aventureiro salvo = aventureiroRepository.save(a);
         return toDetalheDTO(salvo);
     }
 
     public Aventureiro buscarPorId(Long id) {
-        return repository.findById(id)
+        return aventureiroRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Aventureiro não encontrado."));
     }
 
@@ -40,50 +66,58 @@ public class AventureiroService {
         return toDetalheDTO(buscarPorId(id));
     }
 
+    @Transactional
     public AventureiroDetalheDTO atualizar(Long id, AventureiroRequestDTO dto) {
         Aventureiro a = buscarPorId(id);
         a.setNome(dto.nome());
         a.setClasse(dto.classe());
         a.setNivel(dto.nivel());
-        return toDetalheDTO(repository.save(a));
+        return toDetalheDTO(aventureiroRepository.save(a));
     }
 
+    @Transactional
     public void alterarStatus(Long id, boolean ativo) {
         Aventureiro a = buscarPorId(id);
         a.setAtivo(ativo);
-        repository.save(a);
+        aventureiroRepository.save(a);
     }
 
+    @Transactional
     public AventureiroDetalheDTO definirCompanheiro(Long id, CompanheiroDTO dto) {
         Aventureiro a = buscarPorId(id);
-        Companheiro c = new Companheiro();
+
+        Companheiro c = a.getCompanheiro();
+        if (c == null) {
+            c = new Companheiro();
+            c.setAventureiro(a);
+            a.setCompanheiro(c);
+        }
         c.setNome(dto.nome());
         c.setEspecie(dto.especie());
         c.setLealdade(dto.lealdade());
-        a.setCompanheiro(c);
-        return toDetalheDTO(repository.save(a));
+
+        return toDetalheDTO(aventureiroRepository.save(a));
     }
 
+    @Transactional
     public void removerCompanheiro(Long id) {
         Aventureiro a = buscarPorId(id);
         a.setCompanheiro(null);
-        repository.save(a);
+        aventureiroRepository.save(a);
     }
 
     public PageResult<AventureiroResumoDTO> listarPaginado(ClasseAventureiro classe, Boolean ativo, Integer nivelMinimo, int page, int size) {
-        List<Aventureiro> filtrados = repository.findAllFiltered(classe, ativo, nivelMinimo);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
 
-        int total = filtrados.size();
-        int totalPages = (int) Math.ceil((double) total / size);
-        int start = Math.min(page * size, total);
-        int end = Math.min((page + 1) * size, total);
+        Page<Aventureiro> pagina = aventureiroRepository.buscarFiltrado(classe, ativo, nivelMinimo, pageable);
 
-        List<AventureiroResumoDTO> itens = filtrados.subList(start, end).stream()
+        List<AventureiroResumoDTO> itens = pagina.getContent().stream()
                 .map(a -> new AventureiroResumoDTO(a.getId(), a.getNome(), a.getClasse(), a.getNivel(), a.getAtivo()))
                 .collect(Collectors.toList());
 
-        return new PageResult<>(itens, total, page, size, totalPages);
+        return new PageResult<>(itens, (int) pagina.getTotalElements(), pagina.getNumber(), pagina.getSize(), pagina.getTotalPages());
     }
+
     private AventureiroDetalheDTO toDetalheDTO(Aventureiro a) {
         CompanheiroDTO compDTO = null;
         if (a.getCompanheiro() != null) {

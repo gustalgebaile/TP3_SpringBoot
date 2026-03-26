@@ -9,10 +9,16 @@ public record AventureiroRequestDTO(
         @NotBlank(message = "O nome é obrigatório e não pode ser vazio")
         String nome,
 
-        @NotNull(message = "A classe é obrigatória (GUERREIRO, MAGO, ARQUEIRO, CLERIGO, LADINO)")
+        @NotNull(message = "A classe é obrigatória")
         ClasseAventureiro classe,
 
         @NotNull(message = "O nível é obrigatório")
         @Min(value = 1, message = "O nível deve ser maior ou igual a 1")
-        Integer nivel
+        Integer nivel,
+
+        @NotNull(message = "O ID da organização é obrigatório")
+        Long organizacaoId,
+
+        @NotNull(message = "O ID do usuário responsável é obrigatório")
+        Long usuarioId
 ) {}
