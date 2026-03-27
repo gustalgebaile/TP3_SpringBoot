@@ -10,22 +10,21 @@ import org.example.model.audit.Usuario;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "aventureiros", schema = "aventura") // Define o schema explicitamente
+@Table(name = "aventureiros", schema = "aventura")
 @Getter
 @Setter
 public class Aventureiro {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Gerado automaticamente
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizacao_id", nullable = false)
-    private Organizacao organizacao; // Referencia organização existente (Schema Audit)
-
+    private Organizacao organizacao;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_responsavel_id", nullable = false)
-    private Usuario usuarioResponsavel; // Referencia usuário existente (Schema Audit)
+    private Usuario usuarioResponsavel;
 
     @Column(nullable = false, length = 120)
     private String nome;
@@ -46,8 +45,6 @@ public class Aventureiro {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
-    // Relacionamento 1:1 com Companheiro
-    // CascadeType.ALL e orphanRemoval=true garantem que se o aventureiro for removido, o companheiro também será.
     @OneToOne(mappedBy = "aventureiro", cascade = CascadeType.ALL, orphanRemoval = true)
     private Companheiro companheiro;
 

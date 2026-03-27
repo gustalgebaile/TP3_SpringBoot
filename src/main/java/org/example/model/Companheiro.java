@@ -14,8 +14,6 @@ public class Companheiro {
     @Id
     private Long id;
 
-    // @MapsId garante que o Companheiro use o mesmo ID do Aventureiro (chave primária compartilhada)
-    // Isso cumpre a regra: "Não pode existir de forma independente" e "Identificação vinculada ao aventureiro"
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "aventureiro_id")

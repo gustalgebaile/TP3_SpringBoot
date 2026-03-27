@@ -1,63 +1,35 @@
 package org.example.exception;
 
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Erros do @Valid nos DTOs
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<String> detalhes = ex.getBindingResult().getFieldErrors().stream()
-                .map(erro -> erro.getField() + ": " + erro.getDefaultMessage())
-                .collect(Collectors.toList());
-        return construirErro("Solicitação inválida", detalhes, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Map<String, String>> tratarErrosDeValidacao(MethodArgumentNotValidException ex) {
+        Map<String, String> erros = new HashMap<>();
+        for (FieldError erro : ex.getBindingResult().getFieldErrors()) {
+            erros.put(erro.getField(), erro.getDefaultMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
     }
 
-    // Erros do @Validated nos RequestParams (paginação)
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
-        List<String> detalhes = ex.getConstraintViolations().stream()
-                .map(violation -> violation.getMessage())
-                .collect(Collectors.toList());
-        return construirErro("Solicitação inválida", detalhes, HttpStatus.BAD_REQUEST);
-    }
-
-    // Erro ao enviar Enum inválido
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, Object>> handleMessageNotReadable(HttpMessageNotReadableException ex) {
-        return construirErro("Solicitação inválida", List.of("Valor não reconhecido ou formato incorreto. Verifique as classes e espécies permitidas."), HttpStatus.BAD_REQUEST);
-    }
-
-    // Erro de Tipo na URL
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return construirErro("Solicitação inválida", List.of("Parâmetro '" + ex.getName() + "' inválido."), HttpStatus.BAD_REQUEST);
-    }
-
-    // Erro customizado de Aventureiro não encontrado
     @ExceptionHandler(RecursoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(RecursoNaoEncontradoException ex) {
-        return construirErro("Recurso não encontrado", List.of(ex.getMessage()), HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> tratarRecursoNaoEncontrado(RecursoNaoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    private ResponseEntity<Map<String, Object>> construirErro(String mensagem, List<String> detalhes, HttpStatus status) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("mensagem", mensagem);
-        body.put("detalhes", detalhes);
-        return ResponseEntity.status(status).body(body);
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<String> tratarErroDeConversaoDeJSON(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Erro na leitura do JSON. Verifique se enviou um texto no lugar de um número ou uma Classe/Status que não existe.");
     }
 }
-

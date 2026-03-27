@@ -21,7 +21,6 @@ public class AventureiroController {
 
     private final AventureiroService service;
 
-    // Removido o Mapper daqui
     public AventureiroController(AventureiroService service) {
         this.service = service;
     }
@@ -82,5 +81,18 @@ public class AventureiroController {
     public ResponseEntity<Void> removerCompanheiro(@PathVariable Long id) {
         service.removerCompanheiro(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/busca")
+    public ResponseEntity<PageResult<AventureiroResumoDTO>> buscarPorNome(
+            @RequestParam String nome,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(50) int size) {
+        return ResponseEntity.ok(service.buscarPorNome(nome, page, size));
+    }
+
+    @GetMapping("/{id}/perfil")
+    public ResponseEntity<AventureiroPerfilDTO> buscarPerfilCompleto(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPerfilCompleto(id));
     }
 }

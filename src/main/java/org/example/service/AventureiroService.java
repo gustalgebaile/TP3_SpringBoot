@@ -5,10 +5,12 @@ import org.example.enums.ClasseAventureiro;
 import org.example.exception.RecursoNaoEncontradoException;
 import org.example.model.Aventureiro;
 import org.example.model.Companheiro;
+import org.example.model.ParticipacaoMissao;
 import org.example.model.audit.Organizacao;
 import org.example.model.audit.Usuario;
 import org.example.repository.AventureiroRepository;
 import org.example.repository.OrganizacaoRepository;
+import org.example.repository.ParticipacaoMissaoRepository;
 import org.example.repository.UsuarioRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class AventureiroService {
@@ -26,25 +29,27 @@ public class AventureiroService {
     private final AventureiroRepository aventureiroRepository;
     private final OrganizacaoRepository organizacaoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ParticipacaoMissaoRepository participacaoRepository; // NOVO
 
+    // Atualiza o construtor para receber o novo repositório
     public AventureiroService(AventureiroRepository aventureiroRepository,
                               OrganizacaoRepository organizacaoRepository,
-                              UsuarioRepository usuarioRepository) {
+                              UsuarioRepository usuarioRepository,
+                              ParticipacaoMissaoRepository participacaoRepository) {
         this.aventureiroRepository = aventureiroRepository;
         this.organizacaoRepository = organizacaoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.participacaoRepository = participacaoRepository;
     }
 
     @Transactional
     public AventureiroDetalheDTO registrar(AventureiroRequestDTO dto) {
-        // 1. Validar as Chaves Estrangeiras do Schema Audit
         Organizacao org = organizacaoRepository.findById(dto.organizacaoId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Organização não encontrada."));
 
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
 
-        // 2. Construir e Guardar a Entidade
         Aventureiro a = new Aventureiro();
         a.setNome(dto.nome());
         a.setClasse(dto.classe());
@@ -128,5 +133,44 @@ public class AventureiroService {
             );
         }
         return new AventureiroDetalheDTO(a.getId(), a.getNome(), a.getClasse(), a.getNivel(), a.getAtivo(), compDTO);
+    }
+    public PageResult<AventureiroResumoDTO> buscarPorNome(String nome, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("nome").ascending());
+        Page<Aventureiro> pagina = aventureiroRepository.findByNomeContainingIgnoreCase(nome, pageable);
+
+        List<AventureiroResumoDTO> itens = pagina.getContent().stream()
+                .map(a -> new AventureiroResumoDTO(a.getId(), a.getNome(), a.getClasse(), a.getNivel(), a.getAtivo()))
+                .collect(Collectors.toList());
+
+        return new PageResult<>(itens, (int) pagina.getTotalElements(), pagina.getNumber(), pagina.getSize(), pagina.getTotalPages());
+    }
+
+    public AventureiroPerfilDTO buscarPerfilCompleto(Long id) {
+        Aventureiro a = buscarPorId(id);
+
+        Long totalParticipacoes = participacaoRepository.contarParticipacoesPorAventureiro(id);
+
+        Optional<ParticipacaoMissao> ultimaPart = participacaoRepository.buscarUltimaParticipacaoPorAventureiro(id);
+        String tituloUltimaMissao = ultimaPart.map(p -> p.getMissao().getTitulo()).orElse(null);
+
+        CompanheiroDTO compDTO = null;
+        if (a.getCompanheiro() != null) {
+            compDTO = new CompanheiroDTO(
+                    a.getCompanheiro().getNome(),
+                    a.getCompanheiro().getEspecie(),
+                    a.getCompanheiro().getLealdade()
+            );
+        }
+
+        return new AventureiroPerfilDTO(
+                a.getId(),
+                a.getNome(),
+                a.getClasse(),
+                a.getNivel(),
+                a.getAtivo(),
+                compDTO,
+                totalParticipacoes,
+                tituloUltimaMissao
+        );
     }
 }

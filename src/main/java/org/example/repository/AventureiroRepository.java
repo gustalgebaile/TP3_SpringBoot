@@ -21,4 +21,6 @@ public interface AventureiroRepository extends JpaRepository<Aventureiro, Long> 
             @Param("ativo") Boolean ativo,
             @Param("nivelMinimo") Integer nivelMinimo,
             Pageable pageable);
+
+    Page<Aventureiro> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 }

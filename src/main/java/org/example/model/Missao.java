@@ -46,7 +46,6 @@ public class Missao {
     @PrePersist
     public void prePersist() {
         this.createdAt = OffsetDateTime.now();
-        // Por defeito, uma nova missão começa como PLANEJADA se não for especificado
         if (this.status == null) {
             this.status = StatusMissao.PLANEJADA;
         }
