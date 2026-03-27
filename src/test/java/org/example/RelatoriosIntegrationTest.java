@@ -29,18 +29,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 class RelatoriosIntegrationTest {
 
-    // Repositórios
     @Autowired private ParticipacaoMissaoRepository participacaoRepo;
     @Autowired private MissaoRepository missaoRepo;
     @Autowired private AventureiroRepository aventureiroRepo;
     @Autowired private OrganizacaoRepository orgRepo;
     @Autowired private UsuarioRepository userRepo;
 
-    // Serviços (NOVOS)
     @Autowired private AventureiroService aventureiroService;
     @Autowired private MissaoService missaoService;
 
-    // Variáveis para guardar os IDs gerados no banco
     private Long aventureiroId;
     private Long missaoId;
 
@@ -70,7 +67,7 @@ class RelatoriosIntegrationTest {
         a1.setOrganizacao(org);
         a1.setUsuarioResponsavel(user);
         a1 = aventureiroRepo.save(a1);
-        this.aventureiroId = a1.getId(); // Guardando o ID para o teste!
+        this.aventureiroId = a1.getId();
 
         Missao m1 = new Missao();
         m1.setTitulo("Caçar Grifo");
@@ -78,7 +75,7 @@ class RelatoriosIntegrationTest {
         m1.setNivelPerigo(NivelPerigo.RANK_B);
         m1.setOrganizacao(org);
         m1 = missaoRepo.save(m1);
-        this.missaoId = m1.getId(); // Guardando o ID para o teste!
+        this.missaoId = m1.getId();
 
         ParticipacaoMissao p1 = new ParticipacaoMissao();
         p1.setMissao(m1);
@@ -89,18 +86,37 @@ class RelatoriosIntegrationTest {
         participacaoRepo.save(p1);
     }
 
+    // REQUISITO: Listagens com filtro
     @Test
-    void deveGerarRankingComTotaisCorretos() {
-        List<RankingAventureiroDTO> ranking = participacaoRepo.gerarRankingAventureiros(null, null, null);
+    void deveBuscarAventureiroPorNomeParcial() {
+        PageResult<AventureiroResumoDTO> resultado = aventureiroService.buscarPorNome("geral", 0, 10);
 
-        assertThat(ranking).isNotEmpty();
-        RankingAventureiroDTO geralt = ranking.get(0);
-        assertThat(geralt.nomeAventureiro()).isEqualTo("Geralt");
-        assertThat(geralt.totalParticipacoes()).isEqualTo(1L);
-        assertThat(geralt.totalOuro()).isEqualByComparingTo("150.50");
-        assertThat(geralt.totalMvps()).isEqualTo(1L);
+        assertThat(resultado.content()).hasSize(1);
+        assertThat(resultado.content().get(0).nome()).isEqualTo("Geralt");
     }
 
+    // REQUISITO: Consulta detalhada (Cenário 1)
+    @Test
+    void deveBuscarPerfilCompletoDoAventureiro() {
+        AventureiroPerfilDTO perfil = aventureiroService.buscarPerfilCompleto(aventureiroId);
+
+        assertThat(perfil.nome()).isEqualTo("Geralt");
+        assertThat(perfil.totalParticipacoes()).isEqualTo(1L);
+        assertThat(perfil.tituloUltimaMissao()).isEqualTo("Caçar Grifo");
+    }
+
+    // REQUISITO: Consulta detalhada (Cenário 2)
+    @Test
+    void deveBuscarDetalhesDaMissaoComParticipantes() {
+        MissaoDetalheDTO detalhes = missaoService.buscarDetalhes(missaoId);
+
+        assertThat(detalhes.titulo()).isEqualTo("Caçar Grifo");
+        assertThat(detalhes.participantes()).hasSize(1);
+        assertThat(detalhes.participantes().get(0).nomeAventureiro()).isEqualTo("Geralt");
+        assertThat(detalhes.participantes().get(0).recompensa()).isEqualByComparingTo("150.50");
+    }
+
+    // REQUISITO: Relatórios agregados
     @Test
     void deveGerarMetricasDeMissaoSemDuplicidades() {
         List<RelatorioMissaoDTO> metricas = missaoRepo.gerarRelatorioMissoes(null, null);
@@ -112,30 +128,16 @@ class RelatoriosIntegrationTest {
         assertThat(missao.totalOuroDistribuido()).isEqualByComparingTo("150.50");
     }
 
+    // REQUISITO: Ranking
     @Test
-    void deveBuscarAventureiroPorNomeParcial() {
-        PageResult<AventureiroResumoDTO> resultado = aventureiroService.buscarPorNome("geral", 0, 10);
+    void deveGerarRankingComTotaisCorretos() {
+        List<RankingAventureiroDTO> ranking = participacaoRepo.gerarRankingAventureiros(null, null, null);
 
-        assertThat(resultado.content()).hasSize(1);
-        assertThat(resultado.content().get(0).nome()).isEqualTo("Geralt");
-    }
-
-    @Test
-    void deveBuscarPerfilCompletoDoAventureiro() {
-        AventureiroPerfilDTO perfil = aventureiroService.buscarPerfilCompleto(aventureiroId);
-
-        assertThat(perfil.nome()).isEqualTo("Geralt");
-        assertThat(perfil.totalParticipacoes()).isEqualTo(1L);
-        assertThat(perfil.tituloUltimaMissao()).isEqualTo("Caçar Grifo");
-    }
-
-    @Test
-    void deveBuscarDetalhesDaMissaoComParticipantes() {
-        MissaoDetalheDTO detalhes = missaoService.buscarDetalhes(missaoId);
-
-        assertThat(detalhes.titulo()).isEqualTo("Caçar Grifo");
-        assertThat(detalhes.participantes()).hasSize(1);
-        assertThat(detalhes.participantes().get(0).nomeAventureiro()).isEqualTo("Geralt");
-        assertThat(detalhes.participantes().get(0).recompensa()).isEqualByComparingTo("150.50");
+        assertThat(ranking).isNotEmpty();
+        RankingAventureiroDTO geralt = ranking.get(0);
+        assertThat(geralt.nomeAventureiro()).isEqualTo("Geralt");
+        assertThat(geralt.totalParticipacoes()).isEqualTo(1L);
+        assertThat(geralt.totalOuro()).isEqualByComparingTo("150.50");
+        assertThat(geralt.totalMvps()).isEqualTo(1L);
     }
 }

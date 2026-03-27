@@ -14,7 +14,6 @@ import java.time.OffsetDateTime;
 @Getter
 @Setter
 public class Aventureiro {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,7 +52,6 @@ public class Aventureiro {
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = this.createdAt;
     }
-
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = OffsetDateTime.now();
