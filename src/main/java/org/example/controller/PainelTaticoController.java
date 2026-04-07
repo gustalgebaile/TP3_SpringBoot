@@ -1,6 +1,6 @@
 package org.example.controller;
 
-import org.example.model.MvPainelTaticoMissao;
+import org.example.model.adventure.MvPainelTaticoMissao;
 import org.example.service.PainelTaticoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

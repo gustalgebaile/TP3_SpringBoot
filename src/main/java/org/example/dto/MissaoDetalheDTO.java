@@ -12,5 +12,5 @@ public record MissaoDetalheDTO(
         NivelPerigo nivelPerigo,
         OffsetDateTime dataInicio,
         OffsetDateTime dataTermino,
-        List<ParticipanteMissaoDTO> participantes // Pode ser uma lista vazia, mas nunca nula
+        List<ParticipanteMissaoDTO> participantes
 ) {}

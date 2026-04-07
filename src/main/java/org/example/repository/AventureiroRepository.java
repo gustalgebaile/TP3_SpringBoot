@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import org.example.enums.ClasseAventureiro;
-import org.example.model.Aventureiro;
+import org.example.model.adventure.Aventureiro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

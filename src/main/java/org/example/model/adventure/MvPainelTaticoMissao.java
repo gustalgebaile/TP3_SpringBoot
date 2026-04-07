@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.adventure;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
-@Immutable // Protege a view contra operações acidentais de INSERT/UPDATE/DELETE
+@Immutable
 @Table(name = "mv_painel_tatico_missao", schema = "operacoes")
 @Getter
 public class MvPainelTaticoMissao {

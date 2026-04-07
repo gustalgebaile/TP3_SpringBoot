@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.model.MvPainelTaticoMissao;
+import org.example.model.adventure.MvPainelTaticoMissao;
 import org.example.service.PainelTaticoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest // Essencial para carregar o contexto e ligar ao banco de dados real
+@SpringBootTest
 class MissaoTaticaIntegrationTest {
 
     @Autowired
@@ -33,11 +33,9 @@ class MissaoTaticaIntegrationTest {
         }
         System.out.println("---------------------------------------");
 
-        // Asserts básicos para atestar que não ocorreu erro e respeita o limit 10
         assertThat(missoes).isNotNull();
         assertThat(missoes.size()).isLessThanOrEqualTo(10);
 
-        // Se o banco retornar dados, podemos atestar as regras de negócio reais
         if (!missoes.isEmpty()) {
             OffsetDateTime dataLimite = OffsetDateTime.now().minusDays(15);
 

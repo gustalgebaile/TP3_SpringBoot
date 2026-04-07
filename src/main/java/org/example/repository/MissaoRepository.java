@@ -3,7 +3,7 @@ package org.example.repository;
 import org.example.dto.RelatorioMissaoDTO;
 import org.example.enums.NivelPerigo;
 import org.example.enums.StatusMissao;
-import org.example.model.Missao;
+import org.example.model.adventure.Missao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -3,9 +3,9 @@ package org.example.service;
 import org.example.dto.*;
 import org.example.enums.ClasseAventureiro;
 import org.example.exception.RecursoNaoEncontradoException;
-import org.example.model.Aventureiro;
-import org.example.model.Companheiro;
-import org.example.model.ParticipacaoMissao;
+import org.example.model.adventure.Aventureiro;
+import org.example.model.adventure.Companheiro;
+import org.example.model.adventure.ParticipacaoMissao;
 import org.example.model.audit.Organizacao;
 import org.example.model.audit.Usuario;
 import org.example.repository.AventureiroRepository;
@@ -31,7 +31,6 @@ public class AventureiroService {
     private final UsuarioRepository usuarioRepository;
     private final ParticipacaoMissaoRepository participacaoRepository; // NOVO
 
-    // Atualiza o construtor para receber o novo repositório
     public AventureiroService(AventureiroRepository aventureiroRepository,
                               OrganizacaoRepository organizacaoRepository,
                               UsuarioRepository usuarioRepository,
@@ -49,7 +48,7 @@ public class AventureiroService {
 
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
-
+//Fazer metodo Helper
         Aventureiro a = new Aventureiro();
         a.setNome(dto.nome());
         a.setClasse(dto.classe());
@@ -62,6 +61,7 @@ public class AventureiroService {
         return toDetalheDTO(salvo);
     }
 
+    //Helper
     public Aventureiro buscarPorId(Long id) {
         return aventureiroRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Aventureiro não encontrado."));
@@ -87,6 +87,7 @@ public class AventureiroService {
         aventureiroRepository.save(a);
     }
 
+    //TODO - Ajeitar IF
     @Transactional
     public AventureiroDetalheDTO definirCompanheiro(Long id, CompanheiroDTO dto) {
         Aventureiro a = buscarPorId(id);
@@ -123,6 +124,7 @@ public class AventureiroService {
         return new PageResult<>(itens, (int) pagina.getTotalElements(), pagina.getNumber(), pagina.getSize(), pagina.getTotalPages());
     }
 
+    //TODO - Ajeitar IF
     private AventureiroDetalheDTO toDetalheDTO(Aventureiro a) {
         CompanheiroDTO compDTO = null;
         if (a.getCompanheiro() != null) {

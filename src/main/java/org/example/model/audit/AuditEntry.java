@@ -21,11 +21,11 @@ public class AuditEntry {
     private Organizacao organizacao;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "actor_user_id") // Nullable
+    @JoinColumn(name = "actor_user_id")
     private Usuario actorUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "actor_api_key_id") // Nullable
+    @JoinColumn(name = "actor_api_key_id")
     private ApiKey actorApiKey;
 
     private String action;
