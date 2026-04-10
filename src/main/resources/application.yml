@@ -10,9 +10,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
-    propreties:
-      hibernate.format_sql: true
 
   elasticsearch:
     uris: http://localhost:9200
