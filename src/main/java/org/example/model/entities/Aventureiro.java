@@ -1,4 +1,4 @@
-package org.example.model.adventure;
+package org.example.model.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,6 +21,7 @@ public class Aventureiro {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizacao_id", nullable = false)
     private Organizacao organizacao;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_responsavel_id", nullable = false)
     private Usuario usuarioResponsavel;

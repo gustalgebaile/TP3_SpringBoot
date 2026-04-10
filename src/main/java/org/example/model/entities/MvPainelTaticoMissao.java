@@ -1,4 +1,4 @@
-package org.example.model.adventure;
+package org.example.model.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

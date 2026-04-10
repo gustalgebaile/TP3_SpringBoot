@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.model.adventure.MvPainelTaticoMissao;
+import org.example.model.entities.MvPainelTaticoMissao;
 import org.example.service.PainelTaticoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

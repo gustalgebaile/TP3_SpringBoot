@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.model.adventure.MvPainelTaticoMissao;
+import org.example.model.entities.MvPainelTaticoMissao;
 import org.example.repository.MvPainelTaticoMissaoRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -17,8 +17,8 @@ public class PainelTaticoService {
         this.repository = repository;
     }
 
-    // A anotação abaixo salva o retorno deste método em memória.
-    // Nas próximas chamadas, o Spring não executa o método, apenas devolve o valor do cache.
+    /* A anotação abaixo salva o retorno deste método em memória.
+       Nas próximas chamadas, o Spring não executa o método, apenas devolve o valor do cache. */
     @Cacheable("topMissoesTaticas")
     public List<MvPainelTaticoMissao> obterTopMissoesRecentes() {
         OffsetDateTime dataLimite = OffsetDateTime.now().minusDays(15);

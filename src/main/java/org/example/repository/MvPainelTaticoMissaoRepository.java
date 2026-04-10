@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.model.adventure.MvPainelTaticoMissao;
+import org.example.model.entities.MvPainelTaticoMissao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

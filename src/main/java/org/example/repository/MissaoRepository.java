@@ -3,7 +3,7 @@ package org.example.repository;
 import org.example.dto.RelatorioMissaoDTO;
 import org.example.enums.NivelPerigo;
 import org.example.enums.StatusMissao;
-import org.example.model.adventure.Missao;
+import org.example.model.entities.Missao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
-public interface MissaoRepository extends JpaRepository<Missao, Long> {
+public interface  MissaoRepository extends JpaRepository<Missao, Long> {
 
     @Query("SELECT m FROM Missao m WHERE " +
             "(:status IS NULL OR m.status = :status) AND " +

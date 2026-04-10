@@ -1,4 +1,4 @@
-package org.example.model.adventure;
+package org.example.model.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
