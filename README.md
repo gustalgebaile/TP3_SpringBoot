@@ -1,27 +1,21 @@
-### 1. Elasticsearch, Kibana e Redis
+### 1. Elasticsearch
 
 ```yaml
-version: '3.8'
+server:
+  port: 8080
 
-services:
-  postgres-db:
-    image: leogloriainfnet/postgres-tp2-spring:2.0-win
-    container_name: guilda-postgres
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
 
-  elasticsearch-db:
-    image: leogloriainfnet/elastic-tp2-spring:1.0-windows
-    container_name: guilda-elastic
-    ports:
-      - "9200:9200"
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  elasticsearch:
+    uris: http://localhost:9200
 ```
 
 #### Subir serviços
@@ -47,7 +41,7 @@ docker run -d --name postgres-tp2 \
 
 ```bash
 docker exec -it  psql -U postgres
-ALTER USER postgres WITH PASSWORD 'guildpass';
+ALTER USER postgres WITH PASSWORD 'postgres';
 ```
 
 ---
@@ -60,10 +54,8 @@ docker ps
 
 **Containers esperados:**
 
-- `postgres-tp2`
-- `elasticsearch-tp3`
-- `kibana-tp3`
-- `redis-cache-tp3`
+- `guilda-elastic`
+- `guilda-postgres`
 
 ---
 

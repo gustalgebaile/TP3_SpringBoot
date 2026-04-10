@@ -118,7 +118,6 @@ public class ProdutoService {
                                 .filter(f -> f.match(m -> m.field("categoria").query(categoria)))
                                 .filter(f -> f.match(m -> m.field("raridade").query(raridade)))
                                 .filter(f -> f.range(r -> r
-                                        // Informamos que o Range é numérico
                                         .number(n -> n
                                                 .field("preco")
                                                 .gte(min)
