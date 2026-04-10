@@ -72,7 +72,7 @@ class RelatoriosIntegrationTest {
         Missao m1 = new Missao();
         m1.setTitulo("Caçar Grifo");
         m1.setStatus(StatusMissao.CONCLUIDA);
-        m1.setNivelPerigo(NivelPerigo.RANK_B);
+        m1.setNivelPerigo(NivelPerigo.MEDIO);
         m1.setOrganizacao(org);
         m1 = missaoRepo.save(m1);
         this.missaoId = m1.getId();

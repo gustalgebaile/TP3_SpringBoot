@@ -1,38 +1,37 @@
 package org.example.service;
 
-import org.example.model.entities.MvPainelTaticoMissao;
-import org.example.repository.MvPainelTaticoMissaoRepository;
+import org.example.model.entities.PainelTatico;
+import org.example.repository.PainelTaticoRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class PainelTaticoService {
 
-    private final MvPainelTaticoMissaoRepository repository;
+    private final PainelTaticoRepository repository;
 
-    public PainelTaticoService(MvPainelTaticoMissaoRepository repository) {
+    public PainelTaticoService(PainelTaticoRepository repository) {
         this.repository = repository;
     }
-
     /* A anotação abaixo salva o retorno deste método em memória.
        Nas próximas chamadas, o Spring não executa o método, apenas devolve o valor do cache. */
     @Cacheable("topMissoesTaticas")
-    public List<MvPainelTaticoMissao> obterTopMissoesRecentes() {
-        OffsetDateTime dataLimite = OffsetDateTime.now().minusDays(15);
+    public List<PainelTatico> obterTopMissoesRecentes() {
+        LocalDateTime dataLimite = LocalDateTime.now().minusDays(15);
 
         return repository.findTop10ByUltimaAtualizacaoAfterOrderByIndiceProntidaoDesc(dataLimite);
     }
 }
-
 /*
 Explicação da Questão 2 - Melhoria de Desempenho
 
 Como eu resolvi: Caching direto na camada da aplicação usando Spring Cache.
 
-O enunciado deixou bem claro que a gente não podia mexer na estrutura da Materialized View. Então, como eu não podia otimizar o banco, a melhor saída foi puxar essa responsabilidade para o código da nossa aplicação,
+O enunciado deixou bem claro que a gente não podia mexer na estrutura da Materialized View. Então, como eu não podia otimizar o banco,
+a melhor saída foi puxar essa responsabilidade para o código da nossa aplicação,
 usando cache em memória.
 
 O que eu fiz no código:

@@ -1,6 +1,6 @@
 package org.example.controller;
 
-import org.example.model.entities.MvPainelTaticoMissao;
+import org.example.model.entities.PainelTatico;
 import org.example.service.PainelTaticoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +20,8 @@ public class PainelTaticoController {
     }
 
     @GetMapping("/top15dias")
-    public ResponseEntity<List<MvPainelTaticoMissao>> listarTopMissoesRecentes() {
-        List<MvPainelTaticoMissao> missoes = service.obterTopMissoesRecentes();
+    public ResponseEntity<List<PainelTatico>> listarTopMissoesRecentes() {
+        List<PainelTatico> missoes = service.obterTopMissoesRecentes();
         return ResponseEntity.ok(missoes);
     }
 }

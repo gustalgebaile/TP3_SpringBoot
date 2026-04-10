@@ -29,7 +29,7 @@ public class AventureiroService {
     private final AventureiroRepository aventureiroRepository;
     private final OrganizacaoRepository organizacaoRepository;
     private final UsuarioRepository usuarioRepository;
-    private final ParticipacaoMissaoRepository participacaoRepository; // NOVO
+    private final ParticipacaoMissaoRepository participacaoRepository;
 
     public AventureiroService(AventureiroRepository aventureiroRepository,
                               OrganizacaoRepository organizacaoRepository,

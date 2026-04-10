@@ -8,9 +8,11 @@ spring:
     password: postgres
 
   jpa:
-    show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
+    show-sql: true
+    propreties:
+      hibernate.format_sql: true
 
   elasticsearch:
     uris: http://localhost:9200
